@@ -4,6 +4,18 @@ import re
 from typing import List
 
 from ajips.app.api.schemas import CritiqueItem
+from ajips.app.services.constants import (
+    CLOUD_PROVIDERS,
+    COMMON_DATABASES,
+    ENTRY_LEVEL_KEYWORDS,
+    ENTRY_LEVEL_MAX_YEARS,
+    MAX_REALISTIC_YEARS,
+    TECH_AGE_LIMITS,
+    YEARS_PATTERN,
+)
+from ajips.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def critique_requirements(text: str) -> List[CritiqueItem]:
@@ -17,68 +29,55 @@ def critique_requirements(text: str) -> List[CritiqueItem]:
     """
     critiques: List[CritiqueItem] = []
     text_lower = text.lower()
-    
+
     # Check 1: Entry-level with years of experience contradiction
-    if re.search(r'\b(entry.?level|junior)\b', text_lower):
-        years_match = re.search(r'(\d+)\+?\s*years?', text_lower)
-        if years_match and int(years_match.group(1)) >= 3:
+    if re.search(r"\b(entry.?level|junior)\b", text_lower):
+        years_match = re.search(YEARS_PATTERN, text_lower)
+        if years_match and int(years_match.group(1)) >= ENTRY_LEVEL_MAX_YEARS:
             critiques.append(
                 CritiqueItem(
                     severity="warning",
                     message=f"Entry-level role requires {years_match.group(1)}+ years of experience. "
-                           "This is contradictory and may discourage qualified candidates."
+                    "This is contradictory and may discourage qualified candidates.",
                 )
             )
-    
+
     # Check 2: Unrealistic experience requirements
-    years_matches = re.findall(r'(\d+)\+?\s*years?', text_lower)
+    years_matches = re.findall(YEARS_PATTERN, text_lower)
     if years_matches:
         max_years = max(int(y) for y in years_matches)
-        if max_years > 10:
+        if max_years > MAX_REALISTIC_YEARS:
             critiques.append(
                 CritiqueItem(
                     severity="info",
                     message=f"Requires {max_years}+ years of experience. Consider if this is truly necessary "
-                           "or if it might exclude qualified candidates."
+                    "or if it might exclude qualified candidates.",
                 )
             )
-    
+
     # Check 3: Technology age vs experience requirement
-    new_tech_patterns = [
-        (r'\b(next\.js|nuxt|svelte|deno)\b', 5, "Next.js/Nuxt/Svelte/Deno"),
-        (r'\b(rust|go|golang)\b', 10, "Rust/Go"),
-        (r'\b(kubernetes|k8s)\b', 8, "Kubernetes"),
-    ]
-    
-    for pattern, tech_age, tech_name in new_tech_patterns:
-        if re.search(pattern, text_lower):
-            years_in_context = re.search(pattern + r'.*?(\d+)\+?\s*years?', text_lower)
-            if years_in_context and int(years_in_context.group(1)) > tech_age:
-                critiques.append(
-                    CritiqueItem(
-                        severity="critical",
-                        message=f"{tech_name} has only existed for ~{tech_age} years, but the posting "
-                               f"requires {years_in_context.group(1)}+ years. This is impossible."
+    for tech_name, tech_age in TECH_AGE_LIMITS.items():
+        pattern = re.escape(tech_name).replace(r"\.", r"\.").replace(" ", r"\s+")
+        if re.search(pattern, text_lower, re.IGNORECASE):
+            # Look for years mention near the tech
+            context = re.search(pattern + r".*?(\d+)\+?\s*years?", text_lower, re.IGNORECASE)
+            if context:
+                required_years = int(context.group(1))
+                if required_years > tech_age:
+                    critiques.append(
+                        CritiqueItem(
+                            severity="critical",
+                            message=f"{tech_name} has only existed for ~{tech_age} years, but the posting "
+                            f"requires {required_years}+ years. This is impossible.",
+                        )
                     )
-                )
-    
+
     # Check 4: Vague cloud requirements
-    if "cloud" in text_lower and not any(provider in text_lower for provider in ("aws", "azure", "gcp", "google cloud")):
+    if "cloud" in text_lower and not any(provider in text_lower for provider in CLOUD_PROVIDERS):
         critiques.append(
             CritiqueItem(
                 severity="info",
-                message="Cloud requirement is unspecified. Clarify preferred cloud provider (AWS, Azure, GCP)."
-            )
-        )
-    
-    # Check 5: Database requirements without specificity
-    if re.search(r'\b(database|db)\b', text_lower) and not any(
-        db in text_lower for db in ("postgresql", "mysql", "mongodb", "redis", "oracle", "sql server")
-    ):
-        critiques.append(
-            CritiqueItem(
-                severity="info",
-                message="Database experience mentioned but no specific database system specified."
+                message="Cloud requirement is unspecified. Clarify preferred cloud provider (AWS, Azure, GCP).",
             )
         )
     
