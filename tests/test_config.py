@@ -2,6 +2,7 @@
 
 import os
 from unittest.mock import patch
+
 import pytest
 
 from ajips.app.config import Settings, settings
@@ -9,8 +10,8 @@ from ajips.app.config import Settings, settings
 
 def test_default_settings():
     s = Settings()
-    assert "127.0.0.1:8000" in s.CORS_ORIGINS
-    assert "localhost:8000" in s.CORS_ORIGINS
+    assert "http://127.0.0.1:8000" in s.CORS_ORIGINS
+    assert "http://localhost:8000" in s.CORS_ORIGINS
     assert s.LOG_LEVEL == "INFO"
     assert s.LOG_FORMAT == "json"
     assert s.INGESTION_TIMEOUT_S == 10

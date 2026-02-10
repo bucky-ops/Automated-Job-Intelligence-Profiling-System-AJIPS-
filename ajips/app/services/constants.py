@@ -23,15 +23,31 @@ SALARY_PATTERNS = [
 
 # Interview stage keywords
 INTERVIEW_STAGES = {
-    "phone": ["phone screen", "phone interview", "phone call", "screening call"],
+    "phone": [
+        "phone screen",
+        "phone interview",
+        "phone call",
+        "screening call",
+        "phone",
+    ],
     "technical": [
         "technical interview",
         "coding interview",
         "technical assessment",
         "coding challenge",
+        "code",
+        "coding",
+        "technical",
     ],
-    "system_design": ["system design", "architecture", "design interview"],
-    "behavioral": ["behavioral interview", "culture fit", "final round", "onsite"],
+    "system_design": ["system design", "architecture", "design interview", "design"],
+    "behavioral": [
+        "behavioral interview",
+        "culture fit",
+        "final round",
+        "onsite",
+        "culture",
+        "behavioral",
+    ],
 }
 
 # Experience thresholds
