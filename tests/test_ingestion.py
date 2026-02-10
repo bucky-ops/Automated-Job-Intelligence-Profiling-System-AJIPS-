@@ -39,16 +39,9 @@ def test_is_safe_url_private_ips():
 
 
 def test_is_safe_url_allowlist():
-    # Create a minimal allowlist for testing
-    original = ALLOWED_NETLOCS.copy()
-    try:
-        ALLOWED_NETLOCS.clear()
-        ALLOWED_NETLOCS.add("example.com")
-        assert _is_safe_url("https://sub.example.com")
-        assert not _is_safe_url("https://other.com")
-    finally:
-        ALLOWED_NETLOCS.clear()
-        ALLOWED_NETLOCS.update(original)
+    # Test with explicit allowlist
+    assert _is_safe_url("https://sub.example.com", allowed_netlocs=["example.com"])
+    assert not _is_safe_url("https://other.com", allowed_netlocs=["example.com"])
 
 
 @patch("ajips.app.services.ingestion.requests.get")

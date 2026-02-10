@@ -1,42 +1,43 @@
 import logging
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pythonjsonlogger import jsonlogger
 
 from ajips.app.api.routes import router as api_router
+from ajips.app.config import settings
 
-# Configure JSON structured logging for production
-logHandler = logging.StreamHandler()
-formatter = jsonlogger.JsonFormatter(
-    fmt="%(asctime)s %(name)s %(levelname)s %(message)s"
-)
-logHandler.setFormatter(formatter)
+# Configure logging based on LOG_FORMAT env var (json or text)
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO))
+logHandler = logging.StreamHandler()
+if settings.LOG_FORMAT.lower() == "json":
+    from pythonjsonlogger import jsonlogger
+
+    formatter = jsonlogger.JsonFormatter(
+        fmt="%(asctime)s %(name)s %(levelname)s %(message)s"
+    )
+else:
+    formatter = logging.Formatter(fmt="%(asctime)s %(name)s %(levelname)s %(message)s")
+logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
 
 app = FastAPI(
-    title="AJIPS - Automated Job Intelligence Profiling System",
-    version="1.1.0",
-    description="Analyze job postings with AI-powered insights",
+    title=settings.API_TITLE,
+    version=settings.API_VERSION,
+    description=settings.API_DESCRIPTION,
 )
 
-# Restrict CORS to safe origins; adjust for your deployment in production
-ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-    # Add your production domains here, e.g., "https://ajips.example.com"
-]
+# CORS configuration from environment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+    allow_methods=settings.CORS_ALLOW_METHODS,
+    allow_headers=settings.CORS_ALLOW_HEADERS,
 )
 
 # Include API routes
@@ -77,4 +78,4 @@ if ui_path.exists():
 @app.get("/version")
 def version() -> dict:
     """Version and build info endpoint for health checks."""
-    return {"version": "1.1.0", "name": "AJIPS"}
+    return {"version": settings.API_VERSION, "name": "AJIPS"}
