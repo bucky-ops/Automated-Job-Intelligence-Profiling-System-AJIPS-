@@ -2,14 +2,15 @@
 
 <div align="center">
 
-![AJIPS Banner](https://img.shields.io/badge/AJIPS-v1.0.0-blue?style=for-the-badge)
+![AJIPS Banner](https://img.shields.io/badge/AJIPS-v1.1.0-blue?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8+-green?style=for-the-badge&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.112+-teal?style=for-the-badge&logo=fastapi)
+![Production Ready](https://img.shields.io/badge/Production-Ready-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
-**AI-Powered Job Posting Analysis with Comprehensive Insights**
+**AI-Powered Job Posting Analysis with Production-Grade Features**
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [API](#api-reference) • [Contributing](#contributing)
+[Features](#features) • [Installation](#installation) • [Usage](#usage) • [API](#api-reference) • [What's New](#whats-new-v110) • [Contributing](#contributing)
 
 </div>
 
@@ -24,9 +25,13 @@ AJIPS is an advanced job posting analysis system that uses AI and NLP to extract
 - **200+ Skill Detection**: Comprehensive skill database covering programming languages, frameworks, tools, and soft skills
 - **Hidden Skill Inference**: Discovers implied skills using role-based templates and skill clustering
 - **Requirement Critique**: Identifies contradictions, unrealistic expectations, and missing information
+- **Salary Extraction**: Automatically detects and parses salary ranges from job postings
+- **Interview Analysis**: Identifies interview stages and estimates process timeline
 - **Focus Area Analysis**: Categorizes requirements into technology domains
 - **Resume Matching**: Compares your resume against job requirements
 - **Quality Scoring**: Grades job postings on clarity and completeness
+- **Structured Logging**: JSON logging for production debugging
+- **Rate Limiting**: DoS protection with configurable limits
 
 ---
 
@@ -42,6 +47,16 @@ AJIPS is an advanced job posting analysis system that uses AI and NLP to extract
 - **Direct Mapping**: Infers related skills based on explicit mentions
 - **Role-Based Templates**: Applies skill bundles for detected job roles
 - **Skill Clustering**: Identifies technology stacks (MERN, AWS, ML, etc.)
+
+### 💰 Salary Intelligence
+- **Multi-Format Support**: Parses $50k, 50k-100k, $50,000-$100,000 formats
+- **Range Detection**: Identifies min/max compensation
+- **Currency Support**: Standardizes salary data
+
+### 📋 Interview Process Analysis
+- **Stage Detection**: Identifies phone, technical, system design, behavioral stages
+- **Round Estimation**: Estimates total interview rounds
+- **Timeline Extraction**: Detects interview process duration
 
 ### ⚠️ Comprehensive Critiques
 - Experience level contradictions (e.g., "entry-level with 5+ years")
@@ -64,6 +79,13 @@ Automatically categorizes requirements into:
 - Security
 - Project Management
 
+### 🔒 Production-Grade Features
+- **JSON Structured Logging**: Integration-ready logging for monitoring
+- **Rate Limiting**: 30 requests/minute per IP
+- **Input Validation**: Comprehensive data validation
+- **Error Handling**: Graceful error recovery
+- **Health Checks**: `/health` and `/health/detailed` endpoints
+
 ---
 
 ## 🚀 Installation
@@ -76,8 +98,8 @@ Automatically categorizes requirements into:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd Automated-Job-Intelligence-Profiling-System-AJIPS--main
+git clone https://github.com/bucky-ops/Auto-JIPS.git
+cd Auto-JIPS/Automated-Job-Intelligence-Profiling-System-AJIPS--main
 
 # Create virtual environment
 python -m venv .venv
@@ -98,6 +120,8 @@ uvicorn ajips.app.main:app --reload
 The application will be available at:
 - **Web UI**: http://127.0.0.1:8000
 - **API Docs**: http://127.0.0.1:8000/docs
+- **Health Check**: http://127.0.0.1:8000/health
+- **Version Info**: http://127.0.0.1:8000/version
 - **Health Check**: http://127.0.0.1:8000/health
 
 ---
